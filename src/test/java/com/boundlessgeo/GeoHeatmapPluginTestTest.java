@@ -14,15 +14,15 @@
  *
  */
 
-package com.boundlessgeo.module;
+package com.boundlessgeo;
 
-import com.boundlessgeo.service.GeoHeatmapService;
-import org.elasticsearch.common.inject.AbstractModule;
+import org.elasticsearch.test.ESIntegTestCase;
 
-public class GeoHeatmapModule extends AbstractModule {
+import static org.junit.Assert.*;
 
-    @Override
-    protected void configure() {
-        bind(GeoHeatmapService.class).asEagerSingleton();
-    }
+/**
+ *
+ */
+public class GeoHeatmapPluginTestTest extends ESIntegTestCase {
+
 }
