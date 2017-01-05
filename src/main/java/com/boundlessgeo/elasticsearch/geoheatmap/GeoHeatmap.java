@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap;
+package com.boundlessgeo.elasticsearch.geoheatmap;
 
 /**
  * The internal representation of a heatmap

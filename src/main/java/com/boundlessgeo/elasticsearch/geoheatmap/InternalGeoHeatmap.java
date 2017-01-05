@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap;
+package com.boundlessgeo.elasticsearch.geoheatmap;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -196,6 +196,11 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
                 return rows;
             }
         };
+    }
+
+    @Override
+    public String getName() {
+        return GeoHeatmapAggregationBuilder.NAME;
     }
 
     @Override

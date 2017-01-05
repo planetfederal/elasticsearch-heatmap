@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap;
+package com.boundlessgeo.elasticsearch.geoheatmap;
 
 import com.carrotsearch.randomizedtesting.generators.RandomNumbers;
 import com.vividsolutions.jts.algorithm.ConvexHull;

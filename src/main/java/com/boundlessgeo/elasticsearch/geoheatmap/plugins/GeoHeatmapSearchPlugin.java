@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap.plugins;
+package com.boundlessgeo.elasticsearch.geoheatmap.plugins;
 
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry.Entry;
@@ -26,8 +26,8 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.SearchPlugin;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.InternalAggregation;
-import org.elasticsearch.search.aggregations.geoheatmap.GeoHeatmapAggregationBuilder;
-import org.elasticsearch.search.aggregations.geoheatmap.InternalGeoHeatmap;
+import com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder;
+import com.boundlessgeo.elasticsearch.geoheatmap.InternalGeoHeatmap;
 
 import java.util.ArrayList;
 import java.util.Collections;

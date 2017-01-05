@@ -17,11 +17,11 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap;
+package com.boundlessgeo.elasticsearch.geoheatmap;
 
 import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.search.aggregations.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
+import static com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertHitCount;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertSearchResponse;
 import static org.hamcrest.Matchers.containsString;
@@ -44,7 +44,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.GeoShapeQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.search.aggregations.geoheatmap.plugins.GeoHeatmapSearchPlugin;
+import com.boundlessgeo.elasticsearch.geoheatmap.plugins.GeoHeatmapSearchPlugin;
 import org.elasticsearch.test.ESIntegTestCase;
 
 import com.vividsolutions.jts.geom.Coordinate;

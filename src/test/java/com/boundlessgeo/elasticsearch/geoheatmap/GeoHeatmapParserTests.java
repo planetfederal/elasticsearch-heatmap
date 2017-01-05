@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.elasticsearch.search.aggregations.geoheatmap;
+package com.boundlessgeo.elasticsearch.geoheatmap;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import org.elasticsearch.index.query.QueryParseContext;
 import org.elasticsearch.indices.query.IndicesQueriesRegistry;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.SearchPlugin.QuerySpec;
-import org.elasticsearch.search.aggregations.geoheatmap.plugins.GeoHeatmapSearchPlugin;
+import com.boundlessgeo.elasticsearch.geoheatmap.plugins.GeoHeatmapSearchPlugin;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Ignore;
 
