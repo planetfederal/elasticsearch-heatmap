@@ -37,7 +37,6 @@ import org.elasticsearch.search.aggregations.LeafBucketCollectorBase;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregator;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
 import org.elasticsearch.search.aggregations.support.AggregationContext;
-import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
 
 /**

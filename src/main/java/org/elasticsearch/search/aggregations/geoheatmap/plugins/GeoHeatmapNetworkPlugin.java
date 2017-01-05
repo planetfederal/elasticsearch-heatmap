@@ -29,7 +29,6 @@ import org.elasticsearch.search.aggregations.geoheatmap.GeoHeatmapAggregationBui
 import org.elasticsearch.search.aggregations.geoheatmap.InternalGeoHeatmap;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class GeoHeatmapNetworkPlugin extends Plugin implements NetworkPlugin {

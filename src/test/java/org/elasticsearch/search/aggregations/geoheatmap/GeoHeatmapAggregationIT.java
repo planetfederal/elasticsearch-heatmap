@@ -24,8 +24,6 @@ import static org.elasticsearch.search.aggregations.geoheatmap.GeoHeatmapAggrega
 import static org.elasticsearch.search.aggregations.geoheatmap.RandomShapeGenerator.xRandomPoint;
 import static org.elasticsearch.search.aggregations.geoheatmap.RandomShapeGenerator.xRandomRectangle;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertSearchResponse;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 import java.util.ArrayList;
@@ -46,9 +44,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.search.aggregations.geoheatmap.plugins.GeoHeatmapSearchPlugin;
 import org.elasticsearch.test.ESIntegTestCase;
-import org.hamcrest.Matchers;
-import org.locationtech.spatial4j.shape.Rectangle;
-
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
