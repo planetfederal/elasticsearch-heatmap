@@ -22,7 +22,7 @@ package com.boundlessgeo.elasticsearch.geoheatmap;
 /**
  * The internal representation of a heatmap
  */
-public interface GeoHeatmap {
+interface GeoHeatmap {
     String getName();
 
     int getGridLevel();
@@ -32,13 +32,5 @@ public interface GeoHeatmap {
     int getRows();
 
     int[] getCounts();
-
-    double getMinX();
-
-    double getMinY();
-
-    double getMaxX();
-
-    double getMaxY();
 
 }

@@ -19,20 +19,15 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.elasticsearch.common.ParseFieldMatcher;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
-import org.elasticsearch.index.query.GeoShapeQueryBuilder;
 import org.elasticsearch.index.query.QueryParseContext;
-import org.elasticsearch.indices.query.IndicesQueriesRegistry;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.plugins.SearchPlugin.QuerySpec;
-import com.boundlessgeo.elasticsearch.geoheatmap.plugins.GeoHeatmapSearchPlugin;
 import org.elasticsearch.test.ESIntegTestCase;
-import org.junit.Ignore;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Tests the construction of the aggregator from JSON
@@ -62,7 +57,7 @@ public class GeoHeatmapParserTests extends ESIntegTestCase {
             appendRandomNumericOrString(sb, "grid_level", ""+randomInt()+"");
         } else {
             if (randomBoolean()) {
-                sb.append(", \"dist_err\": \""+randomDouble()+" "+randomUnits()+ "\"");
+                sb.append(", \"dist_err\": \"").append(randomDouble()).append(" ").append(randomUnits()).append("\"");
             }
             appendRandomNumericOrString(sb, "dist_err_pct", ""+randomDouble()+"");            
         }
@@ -81,22 +76,20 @@ public class GeoHeatmapParserTests extends ESIntegTestCase {
                 + "             \"relation\": \"within\"}}}");
         }
         sb.append("}");
-        XContentParser stParser = JsonXContent.jsonXContent.createParser(sb.toString());
-        IndicesQueriesRegistry queryParserRegistry = new IndicesQueriesRegistry();
-        QueryParseContext parseContext = new QueryParseContext(queryParserRegistry, stParser, ParseFieldMatcher.STRICT);
-        XContentParser.Token token = stParser.nextToken();
-        assertSame(XContentParser.Token.START_OBJECT, token);
+        XContentParser stParser = createParser(JsonXContent.jsonXContent, sb.toString());
+        QueryParseContext parseContext = new QueryParseContext(stParser, ParseFieldMatcher.STRICT);
+        assertSame(XContentParser.Token.START_OBJECT, stParser.nextToken());
         // can create a factory
         //TODO: get the registry working
-        //assertNotNull(GeoHeatmapAggregationBuilder.parse("geo_heatmap", parseContext));
+        assertNotNull(GeoHeatmapAggregationBuilder.parse("geo_heatmap", parseContext));
     }
     
     private void appendRandomNumericOrString(StringBuilder sb, String field, String value) {
         if (randomBoolean()) {
-            sb.append(", \""+field+"\": \""+value+"\"");
+            sb.append(", \"").append(field).append("\": \"").append(value).append("\"");
         } else {
-            sb.append(", \"grid_level\": "+value);                
-        }  
+            sb.append(", \"").append(field).append("\": ").append(value);
+        }
     }
     
     private String randomUnits() {

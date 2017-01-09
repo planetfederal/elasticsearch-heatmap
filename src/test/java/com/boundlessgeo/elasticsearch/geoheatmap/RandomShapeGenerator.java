@@ -49,13 +49,12 @@ import static org.locationtech.spatial4j.shape.SpatialRelation.CONTAINS;
  * Random geoshape generation utilities for randomized {@code geo_shape} type testing
  * depends on jts and spatial4j
  */
-public class RandomShapeGenerator extends RandomGeoGenerator {
+class RandomShapeGenerator extends RandomGeoGenerator {
 
-    protected static JtsSpatialContext ctx = ShapeBuilder.SPATIAL_CONTEXT;
-    protected static final double xDIVISIBLE = 2;
-    protected static boolean ST_VALIDATE = true;
+    private static JtsSpatialContext ctx = ShapeBuilder.SPATIAL_CONTEXT;
+    private static final double xDIVISIBLE = 2;
 
-    public static enum ShapeType {
+    private enum ShapeType {
         POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON;
         private static final ShapeType[] types = values();
 
@@ -64,53 +63,20 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
         }
     }
 
-    public static ShapeBuilder createShape(Random r) throws InvalidShapeException {
-        return createShapeNear(r, null);
-    }
-
-    public static ShapeBuilder createShape(Random r, ShapeType st) {
-        return createShapeNear(r, null, st);
-    }
-
-    public static ShapeBuilder createShapeNear(Random r, Point nearPoint) throws InvalidShapeException {
-        return createShape(r, nearPoint, null, null);
-    }
-
-    public static ShapeBuilder createShapeNear(Random r, Point nearPoint, ShapeType st) throws InvalidShapeException {
-        return createShape(r, nearPoint, null, st);
-    }
-
-    public static ShapeBuilder createShapeWithin(Random r, Rectangle bbox) throws InvalidShapeException {
+    private static ShapeBuilder createShapeWithin(Random r, Rectangle bbox) throws InvalidShapeException {
         return createShape(r, null, bbox, null);
     }
 
-    public static ShapeBuilder createShapeWithin(Random r, Rectangle bbox, ShapeType st) throws InvalidShapeException {
-        return createShape(r, null, bbox, st);
-    }
-
-    public static GeometryCollectionBuilder createGeometryCollection(Random r) throws InvalidShapeException {
+    static GeometryCollectionBuilder createGeometryCollection(Random r) throws InvalidShapeException {
         return createGeometryCollection(r, null, null, 0);
     }
 
-    public static GeometryCollectionBuilder createGeometryCollectionNear(Random r, Point nearPoint) throws InvalidShapeException {
-        return createGeometryCollection(r, nearPoint, null, 0);
-    }
-
-    public static GeometryCollectionBuilder createGeometryCollectionNear(Random r, Point nearPoint, int size) throws
-            InvalidShapeException {
-        return createGeometryCollection(r, nearPoint, null, size);
-    }
-
-    public static GeometryCollectionBuilder createGeometryCollectionWithin(Random r, Rectangle within) throws InvalidShapeException {
-        return createGeometryCollection(r, null, within, 0);
-    }
-
-    public static GeometryCollectionBuilder createGeometryCollectionWithin(Random r, Rectangle within, int size) throws
+    static GeometryCollectionBuilder createGeometryCollectionWithin(Random r, Rectangle within, int size) throws
             InvalidShapeException {
         return createGeometryCollection(r, null, within, size);
     }
 
-    protected static GeometryCollectionBuilder createGeometryCollection(Random r, Point nearPoint, Rectangle bounds, int numGeometries)
+    private static GeometryCollectionBuilder createGeometryCollection(Random r, Point nearPoint, Rectangle bounds, int numGeometries)
             throws InvalidShapeException {
         if (numGeometries <= 0) {
             // cap geometry collection at 4 shapes (to save test time)
@@ -143,7 +109,7 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
         ShapeBuilder shape;
         short i=0;
         do {
-            shape = createShape(r, nearPoint, within, st, ST_VALIDATE);
+            shape = createShape(r, nearPoint, within, st, true);
             if (shape != null) {
                 return shape;
             }
@@ -178,8 +144,7 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
         switch (st) {
             case POINT:
                 Point p = xRandomPointIn(r, within);
-                PointBuilder pb = new PointBuilder().coordinate(new Coordinate(p.getX(), p.getY(), Double.NaN));
-                return pb;
+                return new PointBuilder().coordinate(new Coordinate(p.getX(), p.getY(), Double.NaN));
             case MULTIPOINT:
             case LINESTRING:
                 // for random testing having a maximum number of 10 points for a line string is more than sufficient
@@ -241,11 +206,11 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
         }
     }
 
-    public static Point xRandomPoint(Random r) {
+    static Point xRandomPoint(Random r) {
         return xRandomPointIn(r, ctx.getWorldBounds());
     }
 
-    protected static Point xRandomPointIn(Random rand, Rectangle r) {
+    private static Point xRandomPointIn(Random rand, Rectangle r) {
         double[] pt = new double[2];
         randomPointIn(rand, r.getMinX(), r.getMinY(), r.getMaxX(), r.getMaxY(), pt);
         Point p = ctx.makePoint(pt[0], pt[1]);
@@ -289,11 +254,11 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
     }
 
     /** creates a small random rectangle by default to keep shape test performance at bay */
-    public static Rectangle xRandomRectangle(Random r, Point nearP) {
+    static Rectangle xRandomRectangle(Random r, Point nearP) {
         return xRandomRectangle(r, nearP, ctx.getWorldBounds(), true);
     }
 
-    public static Rectangle xRandomRectangle(Random r, Point nearP, boolean small) {
+    static Rectangle xRandomRectangle(Random r, Point nearP, boolean small) {
         return xRandomRectangle(r, nearP, ctx.getWorldBounds(), small);
     }
 
@@ -315,7 +280,7 @@ public class RandomShapeGenerator extends RandomGeoGenerator {
         return xDivisible(v, xDIVISIBLE);
     }
 
-    protected static Rectangle xMakeNormRect(double minX, double maxX, double minY, double maxY) {
+    private static Rectangle xMakeNormRect(double minX, double maxX, double minY, double maxY) {
         minX = DistanceUtils.normLonDEG(minX);
         maxX = DistanceUtils.normLonDEG(maxX);
 

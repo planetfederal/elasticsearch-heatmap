@@ -19,11 +19,6 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.spatial.prefix.HeatmapFacetCounter;
@@ -36,14 +31,18 @@ import org.elasticsearch.search.aggregations.LeafBucketCollector;
 import org.elasticsearch.search.aggregations.LeafBucketCollectorBase;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregator;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
-import org.elasticsearch.search.aggregations.support.AggregationContext;
 import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Aggregates hits on geo_shape fields as counts on a grid
  */
-public class GeoHeatmapAggregator extends MetricsAggregator {
+class GeoHeatmapAggregator extends MetricsAggregator {
 
     private final int maxCells;
     private final int gridLevel;
@@ -78,9 +77,9 @@ public class GeoHeatmapAggregator extends MetricsAggregator {
      * @throws IOException
      *             when parsing fails
      */
-    public GeoHeatmapAggregator(String name, Shape inputShape, PrefixTreeStrategy strategy, int maxCells, int gridLevel,
-                                AggregationContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
-                                Map<String, Object> metaData) throws IOException {
+    GeoHeatmapAggregator(String name, Shape inputShape, PrefixTreeStrategy strategy, int maxCells, int gridLevel,
+                         SearchContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
+                         Map<String, Object> metaData) throws IOException {
         super(name, context, parent, pipelineAggregators, metaData);
         this.inputShape = inputShape;
         this.strategy = strategy;

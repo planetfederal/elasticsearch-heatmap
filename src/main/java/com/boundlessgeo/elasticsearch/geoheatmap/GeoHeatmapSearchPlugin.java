@@ -19,22 +19,19 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import com.carrotsearch.randomizedtesting.annotations.Name;
-import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
-import org.elasticsearch.test.rest.yaml.ClientYamlTestCandidate;
-import org.elasticsearch.test.rest.yaml.ESClientYamlSuiteTestCase;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.plugins.SearchPlugin;
 
-import java.io.IOException;
+import java.util.List;
 
-public class GeoHeatmapClientYamlTestSuiteIT extends ESClientYamlSuiteTestCase {
+import static java.util.Collections.singletonList;
 
-    public GeoHeatmapClientYamlTestSuiteIT(@Name("yaml") ClientYamlTestCandidate testCandidate) {
-        super(testCandidate);
+public class GeoHeatmapSearchPlugin extends Plugin implements SearchPlugin {
+
+    @Override
+    public List<AggregationSpec> getAggregations() {
+        return singletonList(new AggregationSpec(GeoHeatmapAggregationBuilder.NAME, GeoHeatmapAggregationBuilder::new,
+                GeoHeatmapAggregationBuilder::parse).addResultReader(InternalGeoHeatmap::new));
     }
 
-    @ParametersFactory
-    public static Iterable<Object[]> parameters() throws IOException {
-        return ESClientYamlSuiteTestCase.createParameters();
-    }
 }
-

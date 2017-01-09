@@ -33,7 +33,6 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregatorFactories.Builder;
 import org.elasticsearch.search.aggregations.AggregatorFactory;
 import org.elasticsearch.search.aggregations.InternalAggregation.Type;
-import org.elasticsearch.search.aggregations.support.AggregationContext;
 import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
 
@@ -47,13 +46,12 @@ import java.util.Optional;
  */
 public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<GeoHeatmapAggregationBuilder> {
     public static final String NAME = "heatmap";
-    public static final Type TYPE = new Type(NAME);
-    public static final ParseField AGGREGATION_NAME_FIELD = new ParseField(NAME);
-    public static final ParseField GEOM_FIELD = new ParseField("geom");
-    public static final ParseField MAX_CELLS_FIELD = new ParseField("max_cells");
-    public static final ParseField DIST_ERR_FIELD = new ParseField("dist_err");
-    public static final ParseField DIST_ERR_PCT_FIELD = new ParseField("dist_err_pct");
-    public static final ParseField GRID_LEVEL_FIELD = new ParseField("grid_level");
+    private static final Type TYPE = new Type(NAME);
+    private static final ParseField GEOM_FIELD = new ParseField("geom");
+    private static final ParseField MAX_CELLS_FIELD = new ParseField("max_cells");
+    static final ParseField DIST_ERR_FIELD = new ParseField("dist_err");
+    static final ParseField DIST_ERR_PCT_FIELD = new ParseField("dist_err_pct");
+    static final ParseField GRID_LEVEL_FIELD = new ParseField("grid_level");
 
     private QueryBuilder geom;
     private Double distErr;
@@ -68,7 +66,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      * @param name
      *            the name that was given this aggregation instance
      */
-    public GeoHeatmapAggregationBuilder(String name) {
+    GeoHeatmapAggregationBuilder(String name) {
         super(name, TYPE);
     }
 
@@ -79,7 +77,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            a name for the aggregator instance
      * @return a new blank builder
      */
-    public static GeoHeatmapAggregationBuilder heatmap(String name) {
+    static GeoHeatmapAggregationBuilder heatmap(String name) {
         return new GeoHeatmapAggregationBuilder(name);
     }
 
@@ -118,7 +116,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
     public static GeoHeatmapAggregationBuilder parse(String aggregationName, QueryParseContext context) throws IOException {
         XContentParser parser = context.parser();
 
-        XContentParser.Token token = null;
+        XContentParser.Token token;
         String currentFieldName = null;
         String field = null;
         GeoShapeQueryBuilder geom = null;
@@ -133,35 +131,32 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
             } else if (token == XContentParser.Token.VALUE_STRING) {
                 if ("field".equals(currentFieldName)) {
                     field = parser.text();
-                } else if (context.getParseFieldMatcher().match(currentFieldName, DIST_ERR_FIELD)) {
+                } else if (DIST_ERR_FIELD.match(currentFieldName)) {
                     distErr = DistanceUnit.parse(parser.text(), DistanceUnit.DEFAULT, DistanceUnit.DEFAULT);
                 }
             } else if (token.isValue()) {
-                if (context.getParseFieldMatcher().match(currentFieldName, MAX_CELLS_FIELD)) {
+                if (MAX_CELLS_FIELD.match(currentFieldName)) {
                     maxCells = parser.intValue();
-                } else if (context.getParseFieldMatcher().match(currentFieldName, DIST_ERR_PCT_FIELD)) {
+                } else if (DIST_ERR_PCT_FIELD.match(currentFieldName)) {
                     distErrPct = parser.doubleValue();
-                } else if (context.getParseFieldMatcher().match(currentFieldName, GRID_LEVEL_FIELD)) {
+                } else if (GRID_LEVEL_FIELD.match(currentFieldName)) {
                     gridLevel = parser.intValue();
                 } else {
                     throw new ParsingException(parser.getTokenLocation(),
                             "Unknown key for a " + token + " in [" + aggregationName + "]: [" + currentFieldName + "].");
                 }
             } else if (token == XContentParser.Token.START_OBJECT) {
-                if (context.getParseFieldMatcher().match(currentFieldName, GEOM_FIELD)) {
-                    geom = (GeoShapeQueryBuilder) context.parseInnerQueryBuilder()
-                            .filter(qb -> qb.getWriteableName().equals(GeoShapeQueryBuilder.NAME)).orElse(null);
+                if (GEOM_FIELD.match(currentFieldName)) {
+                    geom = (GeoShapeQueryBuilder) context.parseInnerQueryBuilder();
                 } else {
                     throw new ParsingException(parser.getTokenLocation(), "Unknown key for a " + token + " in [" + currentFieldName + "].",
                             parser.getTokenLocation());
                 }
             } else if (token == XContentParser.Token.VALUE_NULL) {
-                if (context.getParseFieldMatcher().match(currentFieldName, MAX_CELLS_FIELD)
-                        || context.getParseFieldMatcher().match(currentFieldName, DIST_ERR_PCT_FIELD)
-                        || context.getParseFieldMatcher().match(currentFieldName, GRID_LEVEL_FIELD)
-                        || context.getParseFieldMatcher().match(currentFieldName, GEOM_FIELD)) {
-                    continue;
-                } else {
+                if (!MAX_CELLS_FIELD.match(currentFieldName)
+                        && !DIST_ERR_PCT_FIELD.match(currentFieldName)
+                        && !GRID_LEVEL_FIELD.match(currentFieldName)
+                        && !GEOM_FIELD.match(currentFieldName)) {
                     throw new ParsingException(parser.getTokenLocation(),
                             "Unknown key for a " + token + " in [" + aggregationName + "]: [" + currentFieldName + "].");
                 }                
@@ -179,17 +174,16 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
     }
 
     @Override
-    protected AggregatorFactory<?> doBuild(AggregationContext context, AggregatorFactory<?> parent, Builder subFactoriesBuilder)
+    protected AggregatorFactory<?> doBuild(SearchContext context, AggregatorFactory<?> parent, Builder subFactoriesBuilder)
             throws IOException {
         Shape inputShape = null;
         if (geom != null) {
             GeoShapeQueryBuilder shapeBuilder = (GeoShapeQueryBuilder) geom;
             inputShape = shapeBuilder.shape().build();
         }
-        GeoHeatmapAggregatorFactory factory = new GeoHeatmapAggregatorFactory(name, type, field, Optional.ofNullable(inputShape),
+        return new GeoHeatmapAggregatorFactory(name, type, field, Optional.ofNullable(inputShape),
                 Optional.ofNullable(maxCells), Optional.ofNullable(distErr), Optional.ofNullable(distErrPct),
                 Optional.ofNullable(gridLevel), context, parent, subFactoriesBuilder, metaData);
-        return factory;
     }
 
     @Override
@@ -217,7 +211,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            field.
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder field(String field) {
+    GeoHeatmapAggregationBuilder field(String field) {
         if (field == null) {
             throw new IllegalArgumentException("[field] must not be null: [" + name + "]");
         }
@@ -233,7 +227,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            the bounding geometry; defaults to the world rectangle
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder geom(GeoShapeQueryBuilder geom) {
+    GeoHeatmapAggregationBuilder geom(GeoShapeQueryBuilder geom) {
         this.geom = geom;
         return this;
     }
@@ -246,7 +240,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            The distance in meters
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder distErr(Double distErr) {
+    GeoHeatmapAggregationBuilder distErr(Double distErr) {
         if (distErr != null) this.distErr = distErr;
         return this;
     }
@@ -259,7 +253,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            A fraction from 0.0 to 0.5
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder distErrPct(Double distErrPct) {
+    GeoHeatmapAggregationBuilder distErrPct(Double distErrPct) {
         if (distErrPct != null) this.distErrPct = distErrPct;
         return this;
     }
@@ -271,7 +265,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            higher numbers mean higher granularity; defaults to 7
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder gridLevel(Integer gridLevel) {
+    GeoHeatmapAggregationBuilder gridLevel(Integer gridLevel) {
         if (gridLevel != null) this.gridLevel = gridLevel;
         return this;
     }
@@ -283,7 +277,7 @@ public class GeoHeatmapAggregationBuilder extends AbstractAggregationBuilder<Geo
      *            defaults to 100,000
      * @return this builder
      */
-    public GeoHeatmapAggregationBuilder maxCells(Integer maxCells) {
+    GeoHeatmapAggregationBuilder maxCells(Integer maxCells) {
         if (maxCells != null) this.maxCells = maxCells;
         return this;
     }

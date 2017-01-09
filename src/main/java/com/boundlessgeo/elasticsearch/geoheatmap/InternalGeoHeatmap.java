@@ -31,9 +31,6 @@ import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.metrics.InternalMetricsAggregation;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
 
-/**
- *
- */
 public class InternalGeoHeatmap extends InternalMetricsAggregation implements GeoHeatmap {
 
     private int gridLevel;
@@ -104,24 +101,25 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
             assert aggregation.getName().equals(getName());
             assert aggregation instanceof InternalGeoHeatmap;
             InternalGeoHeatmap toMerge = (InternalGeoHeatmap) aggregation;
-            if (toMerge.columns == 0) {
-                continue;
-            } else if (reduced.columns == 0) {
-                reduced.gridLevel = toMerge.gridLevel;
-                reduced.rows = toMerge.rows;
-                reduced.columns = toMerge.columns;
-                reduced.minX = toMerge.minX;
-                reduced.minY = toMerge.minY;
-                reduced.maxX = toMerge.maxX;
-                reduced.maxY = toMerge.maxY;
-                reduced.counts = toMerge.counts;
-            } else {
-                assert toMerge.gridLevel == reduced.gridLevel;
-                assert toMerge.columns == reduced.columns;
-                assert toMerge.maxX == reduced.maxX;
-                assert toMerge.counts.length == reduced.counts.length;
-                for (int i = 0; i < toMerge.counts.length; i++) {
-                    reduced.counts[i] += toMerge.counts[i];
+
+            if (toMerge.columns != 0) {
+                if (reduced.columns == 0) {
+                    reduced.gridLevel = toMerge.gridLevel;
+                    reduced.rows = toMerge.rows;
+                    reduced.columns = toMerge.columns;
+                    reduced.minX = toMerge.minX;
+                    reduced.minY = toMerge.minY;
+                    reduced.maxX = toMerge.maxX;
+                    reduced.maxY = toMerge.maxY;
+                    reduced.counts = toMerge.counts;
+                } else {
+                    assert toMerge.gridLevel == reduced.gridLevel;
+                    assert toMerge.columns == reduced.columns;
+                    assert toMerge.maxX == reduced.maxX;
+                    assert toMerge.counts.length == reduced.counts.length;
+                    for (int i = 0; i < toMerge.counts.length; i++) {
+                        reduced.counts[i] += toMerge.counts[i];
+                    }
                 }
             }
         }
@@ -156,7 +154,7 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
     }
 
     // {@see org.apache.solr.handler.component.SpatialHeatmapFacets#asInts2D}
-    static List<List<Integer>> asInts2D(final int columns, final int rows, final int[] counts) {
+    private static List<List<Integer>> asInts2D(final int columns, final int rows, final int[] counts) {
         // Returns a view versus returning a copy. This saves memory.
         // The data is oriented naturally for human/developer viewing: one row
         // at a time top-down
@@ -199,11 +197,6 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
     }
 
     @Override
-    public String getName() {
-        return GeoHeatmapAggregationBuilder.NAME;
-    }
-
-    @Override
     public int getGridLevel() {
         return gridLevel;
     }
@@ -223,23 +216,4 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
         return counts;
     }
 
-    @Override
-    public double getMinX() {
-        return minX;
-    }
-
-    @Override
-    public double getMinY() {
-        return minY;
-    }
-
-    @Override
-    public double getMaxX() {
-        return maxX;
-    }
-
-    @Override
-    public double getMaxY() {
-        return maxY;
-    }
 }

@@ -19,12 +19,6 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-
 import org.apache.lucene.spatial.prefix.PrefixTreeStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
@@ -39,16 +33,19 @@ import org.elasticsearch.search.aggregations.AggregatorFactories;
 import org.elasticsearch.search.aggregations.AggregatorFactory;
 import org.elasticsearch.search.aggregations.InternalAggregation.Type;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
-import org.elasticsearch.search.aggregations.support.AggregationContext;
 import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
 
-/**
- */
-public class GeoHeatmapAggregatorFactory extends AggregatorFactory<GeoHeatmapAggregatorFactory> {
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
-    public static final double DEFAULT_DIST_ERR_PCT = 0.15;
-    public static final int DEFAULT_MAX_CELLS = 100_000;
+class GeoHeatmapAggregatorFactory extends AggregatorFactory<GeoHeatmapAggregatorFactory> {
+
+    private static final double DEFAULT_DIST_ERR_PCT = 0.15;
+    private static final int DEFAULT_MAX_CELLS = 100_000;
 
     private final int maxCells;
     private final int gridLevel;
@@ -88,13 +85,13 @@ public class GeoHeatmapAggregatorFactory extends AggregatorFactory<GeoHeatmapAgg
      * @throws IOException
      *             if an error occurs creating the factory
      */
-    public GeoHeatmapAggregatorFactory(String name, Type type, String field, Optional<Shape> inputShape, Optional<Integer> maxCells,
-                                       Optional<Double> distErr, Optional<Double> distErrPct, Optional<Integer> gridLevel,
-                                       AggregationContext context, AggregatorFactory<?> parent,
-                                       AggregatorFactories.Builder subFactoriesBuilder,Map<String, Object> metaData) throws IOException {
+    GeoHeatmapAggregatorFactory(String name, Type type, String field, Optional<Shape> inputShape, Optional<Integer> maxCells,
+                                Optional<Double> distErr, Optional<Double> distErrPct, Optional<Integer> gridLevel,
+                                SearchContext context, AggregatorFactory<?> parent,
+                                AggregatorFactories.Builder subFactoriesBuilder, Map<String, Object> metaData) throws IOException {
 
         super(name, type, context, parent, subFactoriesBuilder, metaData);
-        MappedFieldType fieldType = context.searchContext().mapperService().fullName(field);
+        MappedFieldType fieldType = context.mapperService().fullName(field);
         if (fieldType.typeName().equals(GeoShapeFieldMapper.CONTENT_TYPE)) {
             GeoShapeFieldType geoFieldType = (GeoShapeFieldType) fieldType;
             this.strategy = geoFieldType.resolveStrategy(SpatialStrategy.RECURSIVE);

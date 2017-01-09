@@ -19,37 +19,32 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertHitCount;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertSearchResponse;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.core.IsNull.notNullValue;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.geo.ShapeRelation;
+import org.elasticsearch.common.geo.builders.GeometryCollectionBuilder;
+import org.elasticsearch.common.geo.builders.ShapeBuilder;
+import org.elasticsearch.common.geo.builders.ShapeBuilders;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.GeoShapeQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.test.ESIntegTestCase;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.ShapeRelation;
-import org.elasticsearch.common.geo.builders.GeometryCollectionBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilders;
-import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.GeoShapeQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.plugins.Plugin;
-import com.boundlessgeo.elasticsearch.geoheatmap.plugins.GeoHeatmapSearchPlugin;
-import org.elasticsearch.test.ESIntegTestCase;
+import static com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
+import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertHitCount;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
-public class GeoHeatmapIT extends ESIntegTestCase {
+public class GeoHeatmapTests extends ESIntegTestCase {
 
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
@@ -106,11 +101,9 @@ public class GeoHeatmapIT extends ESIntegTestCase {
 
         SearchResponse result = client().prepareSearch("test").setTypes("type").setQuery(QueryBuilders.matchAllQuery()).setPostFilter(geom)
                 .get();
-        assertSearchResponse(result);
         assertHitCount(result, 1);
 
         result = client().prepareSearch("test").setTypes("type").setQuery(QueryBuilders.matchAllQuery()).addAggregation(factory).get();
-        assertSearchResponse(result);
         assertHitCount(result, 1);
 
         GeoHeatmap heatmap = result.getAggregations().get(name);
@@ -190,7 +183,6 @@ public class GeoHeatmapIT extends ESIntegTestCase {
         SearchResponse searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").gridLevel(4).maxCells(100_000)).execute().actionGet();
 
-        assertSearchResponse(searchResponse);
         assertThat(searchResponse.getHits().getTotalHits(), equalTo(4L));
         assertThat(searchResponse.getHits().hits().length, equalTo(4));
 
@@ -266,16 +258,10 @@ public class GeoHeatmapIT extends ESIntegTestCase {
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").gridLevel(4).maxCells(100_000))
                 .execute().actionGet();
 
-        assertSearchResponse(searchResponse);
-        assertThat(searchResponse.getHits().getTotalHits(), equalTo(new Long(count)));
+        assertThat(searchResponse.getHits().getTotalHits(), equalTo((long) count));
         assertThat(searchResponse.getHits().hits().length, equalTo(count));
 
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        searchResponse.toXContent(builder, ToXContent.EMPTY_PARAMS);
-        builder.endObject();
-        String responseString = builder.string();
-
-        assertThat(responseString, containsString(expected));
+        assertThat(searchResponse.toString(), containsString(expected));
     }
     
 }

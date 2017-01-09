@@ -19,8 +19,6 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import org.elasticsearch.common.geo.GeoPoint;
-
 import java.util.Random;
 
 /**
@@ -28,16 +26,10 @@ import java.util.Random;
  * does not depend on jts or spatial4j. Use {@link RandomShapeGenerator}
  * to create random OGC compliant shapes.
  */
-public class RandomGeoGenerator {
+class RandomGeoGenerator {
 
-    public static void randomPoint(Random r, double[] pt) {
-        final double[] min = {-180, -90};
-        final double[] max = {180, 90};
-        randomPointIn(r, min[0], min[1], max[0], max[1], pt);
-    }
-
-    public static void randomPointIn(Random r, final double minLon, final double minLat,
-                                     final double maxLon, final double maxLat, double[] pt) {
+    static void randomPointIn(Random r, final double minLon, final double minLat,
+                              final double maxLon, final double maxLat, double[] pt) {
         assert pt != null && pt.length == 2;
 
         // normalize min and max
@@ -52,17 +44,6 @@ public class RandomGeoGenerator {
 
         pt[0] = tMin[0] + r.nextDouble() * (tMax[0] - tMin[0]);
         pt[1] = tMin[1] + r.nextDouble() * (tMax[1] - tMin[1]);
-    }
-
-    public static GeoPoint randomPoint(Random r) {
-        return randomPointIn(r, -180, -90, 180, 90);
-    }
-
-    public static GeoPoint randomPointIn(Random r, final double minLon, final double minLat,
-                                         final double maxLon, final double maxLat) {
-        double[] pt = new double[2];
-        randomPointIn(r, minLon, minLat, maxLon, maxLat, pt);
-        return new GeoPoint(pt[1], pt[0]);
     }
 
     /** Puts latitude in range of -90 to 90. */

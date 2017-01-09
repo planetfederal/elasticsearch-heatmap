@@ -18,48 +18,43 @@
  */
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
-import static com.boundlessgeo.elasticsearch.geoheatmap.RandomShapeGenerator.xRandomPoint;
-import static com.boundlessgeo.elasticsearch.geoheatmap.RandomShapeGenerator.xRandomRectangle;
-import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertSearchResponse;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.core.IsNull.notNullValue;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.geo.ShapeRelation;
+import org.elasticsearch.common.geo.builders.EnvelopeBuilder;
+import org.elasticsearch.common.geo.builders.GeometryCollectionBuilder;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.GeoShapeQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.test.ESIntegTestCase;
+import org.hamcrest.Matchers;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.ShapeRelation;
-import org.elasticsearch.common.geo.builders.EnvelopeBuilder;
-import org.elasticsearch.common.geo.builders.GeometryCollectionBuilder;
-import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.GeoShapeQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.plugins.Plugin;
-import com.boundlessgeo.elasticsearch.geoheatmap.plugins.GeoHeatmapSearchPlugin;
-import org.elasticsearch.test.ESIntegTestCase;
-import org.hamcrest.Matchers;
-import org.locationtech.spatial4j.shape.Rectangle;
-
-import com.vividsolutions.jts.geom.Coordinate;
+import static com.boundlessgeo.elasticsearch.geoheatmap.GeoHeatmapAggregationBuilder.heatmap;
+import static com.boundlessgeo.elasticsearch.geoheatmap.RandomShapeGenerator.xRandomPoint;
+import static com.boundlessgeo.elasticsearch.geoheatmap.RandomShapeGenerator.xRandomRectangle;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
  * Indexes a few random docs with geo_shapes and performs basic checks on the
  * heatmap over them
  */
 @ESIntegTestCase.SuiteScopeTestCase
-public class GeoHeatmapAggregationIT extends ESIntegTestCase {
+public class GeoHeatmapAggregationTests extends ESIntegTestCase {
 
-    static int numDocs, numTag1Docs;
-    static Rectangle mbr;
+    private static int numDocs, numTag1Docs;
+    private static Rectangle mbr;
     
     @Override
     protected Collection<Class<? extends Plugin>> nodePlugins() {
@@ -119,8 +114,6 @@ public class GeoHeatmapAggregationIT extends ESIntegTestCase {
         SearchResponse response2 = client().prepareSearch("idx")
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").gridLevel(7).maxCells(100)).execute().actionGet();
 
-        assertSearchResponse(response2);
-
         GeoHeatmap filter2 = response2.getAggregations().get("heatmap1");
         assertThat(filter2, notNullValue());
         assertThat(filter2.getName(), equalTo("heatmap1"));
@@ -130,11 +123,6 @@ public class GeoHeatmapAggregationIT extends ESIntegTestCase {
             maxHeatmapValue = Math.max(maxHeatmapValue, filter2.getCounts()[i]);
         }
         assertTrue(maxHeatmapValue <= numTag1Docs);
-        
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        response2.toXContent(builder, ToXContent.EMPTY_PARAMS);
-        builder.endObject();
-        logger.info("Full heatmap Response Content:\n{ {} }", builder.string());
     }
 
     /**
@@ -145,7 +133,7 @@ public class GeoHeatmapAggregationIT extends ESIntegTestCase {
         SearchResponse searchResponse = client().prepareSearch("idx").setQuery(matchAllQuery())
                 .addAggregation(heatmap("heatmap1").field("location").gridLevel(1).maxCells(maxCells)).execute().actionGet();
 
-        assertThat(searchResponse.getHits().getTotalHits(), equalTo(new Long(numDocs)));
+        assertThat(searchResponse.getHits().getTotalHits(), equalTo((long) numDocs));
         GeoHeatmap heatmap = searchResponse.getAggregations().get("heatmap1");
         assertThat(heatmap, Matchers.notNullValue());
         assertThat(heatmap.getRows() * heatmap.getColumns(), lessThanOrEqualTo(maxCells));
