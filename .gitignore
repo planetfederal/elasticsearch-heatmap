@@ -7,7 +7,11 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+.gradle
 *.iml
 *.ipr
 *.iws
 /bin/
+.idea/
+.local-*
+build/
