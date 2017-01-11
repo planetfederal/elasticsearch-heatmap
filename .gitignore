@@ -12,3 +12,6 @@ buildNumber.properties
 *.ipr
 *.iws
 /bin/
+.idea/
+.local-*
+build/
