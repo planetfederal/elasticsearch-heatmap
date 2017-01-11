@@ -31,7 +31,6 @@ import org.elasticsearch.search.aggregations.AggregationInitializationException;
 import org.elasticsearch.search.aggregations.Aggregator;
 import org.elasticsearch.search.aggregations.AggregatorFactories;
 import org.elasticsearch.search.aggregations.AggregatorFactory;
-import org.elasticsearch.search.aggregations.InternalAggregation.Type;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
 import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
@@ -57,8 +56,6 @@ class GeoHeatmapAggregatorFactory extends AggregatorFactory<GeoHeatmapAggregator
      * 
      * @param name
      *            the name of this heatmap aggregator
-     * @param type
-     *            passed in from the Builder
      * @param field
      *            the indexed field on which to create the heatmap; must be a
      *            geo_shape
@@ -85,12 +82,12 @@ class GeoHeatmapAggregatorFactory extends AggregatorFactory<GeoHeatmapAggregator
      * @throws IOException
      *             if an error occurs creating the factory
      */
-    GeoHeatmapAggregatorFactory(String name, Type type, String field, Optional<Shape> inputShape, Optional<Integer> maxCells,
+    GeoHeatmapAggregatorFactory(String name, String field, Optional<Shape> inputShape, Optional<Integer> maxCells,
                                 Optional<Double> distErr, Optional<Double> distErrPct, Optional<Integer> gridLevel,
                                 SearchContext context, AggregatorFactory<?> parent,
                                 AggregatorFactories.Builder subFactoriesBuilder, Map<String, Object> metaData) throws IOException {
 
-        super(name, type, context, parent, subFactoriesBuilder, metaData);
+        super(name, context, parent, subFactoriesBuilder, metaData);
         MappedFieldType fieldType = context.mapperService().fullName(field);
         if (fieldType.typeName().equals(GeoShapeFieldMapper.CONTENT_TYPE)) {
             GeoShapeFieldType geoFieldType = (GeoShapeFieldType) fieldType;
