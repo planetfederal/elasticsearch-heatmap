@@ -31,7 +31,7 @@ import org.elasticsearch.search.aggregations.LeafBucketCollector;
 import org.elasticsearch.search.aggregations.LeafBucketCollectorBase;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregator;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
-import org.elasticsearch.search.internal.SearchContext;
+import org.elasticsearch.search.aggregations.support.AggregationContext;
 import org.locationtech.spatial4j.shape.Shape;
 
 import java.io.IOException;
@@ -78,7 +78,7 @@ class GeoHeatmapAggregator extends MetricsAggregator {
      *             when parsing fails
      */
     GeoHeatmapAggregator(String name, Shape inputShape, PrefixTreeStrategy strategy, int maxCells, int gridLevel,
-                         SearchContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
+                         AggregationContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
                          Map<String, Object> metaData) throws IOException {
         super(name, context, parent, pipelineAggregators, metaData);
         this.inputShape = inputShape;

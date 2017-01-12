@@ -4,13 +4,10 @@ buildscript {
     mavenCentral()
     jcenter()
     mavenLocal()
-    maven {
-      url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
   }
 
   dependencies {
-    classpath "org.elasticsearch.gradle:build-tools:6.0.0-alpha1-SNAPSHOT"
+    classpath "org.elasticsearch.gradle:build-tools:5.1.1"
   }
 }
 
@@ -35,14 +32,11 @@ esplugin {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-      url "https://oss.sonatype.org/content/repositories/snapshots"
-    }
 }
 
 dependencies {
-  compile 'org.elasticsearch:elasticsearch:6.0.0-alpha1-SNAPSHOT'
-  testCompile 'org.elasticsearch.test:framework:6.0.0-alpha1-SNAPSHOT'
+  compile 'org.elasticsearch:elasticsearch:5.1.1'
+  testCompile 'org.elasticsearch.test:framework:5.1.1'
 }
 
 // Set to false to not use elasticsearch checkstyle rules
