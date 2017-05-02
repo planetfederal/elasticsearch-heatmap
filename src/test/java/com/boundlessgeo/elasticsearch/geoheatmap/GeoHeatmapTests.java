@@ -90,12 +90,12 @@ public class GeoHeatmapTests extends ESIntegTestCase {
             factory.gridLevel(gridLevel);
         } else {
             if (randomBoolean()) {
-                factory.distErr(randomDoubleBetween(0.0, 0.5, false));
+                factory.distErr(randomDoubleBetween(0.01, 0.5, false));
             }
-            factory.distErrPct(randomDoubleBetween(0.0, 0.5, false));
+            factory.distErrPct(randomDoubleBetween(0.01, 0.5, false));
         }
         if (randomBoolean()) {
-            factory.maxCells(randomIntBetween(1, Integer.MAX_VALUE));
+            factory.maxCells(randomIntBetween(1, 50)); // TODO: Base this on the max allowed cells for gridLevel, if given
         }
         factory.field("location");
 
@@ -189,27 +189,27 @@ public class GeoHeatmapTests extends ESIntegTestCase {
         // Default
         searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location")).execute().actionGet();
-        assertGridLevel("heatmap1", 7, searchResponse);
+        assertGridLevel(7, searchResponse);
         
         // Explicit grid_level
         searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").gridLevel(3)).execute().actionGet();
-        assertGridLevel("heatmap1", 3, searchResponse);
+        assertGridLevel(3, searchResponse);
 
         // Just dist_err
         searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").distErr(100.0)).execute().actionGet();
-        assertGridLevel("heatmap1", 1, searchResponse);
+        assertGridLevel(1, searchResponse);
 
         // Just dist_err_pct
         searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").geom(geo).field("location").distErrPct(0.05)).execute().actionGet();
-        assertGridLevel("heatmap1", 8, searchResponse);
+        assertGridLevel(8, searchResponse);
 
         // dist_err_pct with default geom
         searchResponse = client().prepareSearch("test").setTypes("type1").setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(heatmap("heatmap1").field("location").distErrPct(0.1).maxCells(100_000)).execute().actionGet();
-        assertGridLevel("heatmap1", 6, searchResponse);
+        assertGridLevel(6, searchResponse);
         
     }
     
@@ -247,8 +247,8 @@ public class GeoHeatmapTests extends ESIntegTestCase {
         
     }
     
-    private void assertGridLevel(String aggName, int expected, SearchResponse actual) {
-        GeoHeatmap heatmap = actual.getAggregations().get(aggName);
+    private void assertGridLevel(int expected, SearchResponse actual) {
+        GeoHeatmap heatmap = actual.getAggregations().get("heatmap1");
         assertEquals(expected, heatmap.getGridLevel());
     }
     
