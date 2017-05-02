@@ -31,7 +31,7 @@ import org.elasticsearch.search.aggregations.LeafBucketCollector;
 import org.elasticsearch.search.aggregations.LeafBucketCollectorBase;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregator;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
-import org.elasticsearch.search.aggregations.support.AggregationContext;
+import org.elasticsearch.search.internal.SearchContext;
 import org.locationtech.spatial4j.shape.Shape;
 
 import java.io.IOException;
@@ -78,7 +78,7 @@ class GeoHeatmapAggregator extends MetricsAggregator {
      *             when parsing fails
      */
     GeoHeatmapAggregator(String name, Shape inputShape, PrefixTreeStrategy strategy, int maxCells, int gridLevel,
-                         AggregationContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
+                         SearchContext context, Aggregator parent, List<PipelineAggregator> pipelineAggregators,
                          Map<String, Object> metaData) throws IOException {
         super(name, context, parent, pipelineAggregators, metaData);
         this.inputShape = inputShape;
@@ -97,11 +97,7 @@ class GeoHeatmapAggregator extends MetricsAggregator {
         return new LeafBucketCollectorBase(sub, null) {
             @Override
             public void collect(int doc, long bucket) throws IOException {
-                SparseFixedBitSet bits = buckets.get(bucket);
-                if (bits == null) {
-                    bits = new SparseFixedBitSet(parentReaderContext.reader().maxDoc());
-                    buckets.put(bucket, bits);
-                }
+                SparseFixedBitSet bits = buckets.computeIfAbsent(bucket, k -> new SparseFixedBitSet(parentReaderContext.reader().maxDoc()));
                 bits.set(ctx.docBase + doc);
             }
         };

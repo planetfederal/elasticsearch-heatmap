@@ -19,11 +19,9 @@
 
 package com.boundlessgeo.elasticsearch.geoheatmap;
 
-import org.elasticsearch.common.ParseFieldMatcher;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.index.query.QueryParseContext;
-import org.elasticsearch.indices.query.IndicesQueriesRegistry;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.ESIntegTestCase;
 
@@ -78,13 +76,11 @@ public class GeoHeatmapParserTests extends ESIntegTestCase {
 //                + "             \"relation\": \"within\"}}}");
 //        }
         sb.append("}");
-        XContentParser stParser = JsonXContent.jsonXContent.createParser(sb.toString());
-        IndicesQueriesRegistry queryParserRegistry = new IndicesQueriesRegistry();
-        QueryParseContext parseContext = new QueryParseContext(queryParserRegistry, stParser, ParseFieldMatcher.STRICT);
+        XContentParser stParser = createParser(JsonXContent.jsonXContent, sb.toString());
+        QueryParseContext parseContext = new QueryParseContext(stParser);
         XContentParser.Token token = stParser.nextToken();
         assertSame(XContentParser.Token.START_OBJECT, token);
         // can create a factory
-        //TODO: get the registry working
         assertNotNull(GeoHeatmapAggregationBuilder.parse("geo_heatmap", parseContext));
     }
     
