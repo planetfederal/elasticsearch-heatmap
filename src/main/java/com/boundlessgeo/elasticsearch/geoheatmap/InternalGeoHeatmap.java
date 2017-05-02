@@ -31,7 +31,7 @@ import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.metrics.InternalMetricsAggregation;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
 
-public class InternalGeoHeatmap extends InternalMetricsAggregation implements GeoHeatmap {
+class InternalGeoHeatmap extends InternalMetricsAggregation implements GeoHeatmap {
 
     private int gridLevel;
     private int rows;
@@ -63,7 +63,7 @@ public class InternalGeoHeatmap extends InternalMetricsAggregation implements Ge
     /**
      * Read from a stream.
      */
-    public InternalGeoHeatmap(StreamInput in) throws IOException {
+    InternalGeoHeatmap(StreamInput in) throws IOException {
         super(in);
         this.gridLevel = in.readVInt();
         this.rows = in.readVInt();

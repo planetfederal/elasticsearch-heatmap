@@ -97,11 +97,7 @@ class GeoHeatmapAggregator extends MetricsAggregator {
         return new LeafBucketCollectorBase(sub, null) {
             @Override
             public void collect(int doc, long bucket) throws IOException {
-                SparseFixedBitSet bits = buckets.get(bucket);
-                if (bits == null) {
-                    bits = new SparseFixedBitSet(parentReaderContext.reader().maxDoc());
-                    buckets.put(bucket, bits);
-                }
+                SparseFixedBitSet bits = buckets.computeIfAbsent(bucket, k -> new SparseFixedBitSet(parentReaderContext.reader().maxDoc()));
                 bits.set(ctx.docBase + doc);
             }
         };
