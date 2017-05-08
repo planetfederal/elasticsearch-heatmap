@@ -70,3 +70,15 @@ install version 1.0.0 of the plugin on ES 5.3.2, do the following:
             ]
         }
 ```
+
+### Options
+| Parameter | Definition |
+| --- | --- |
+| field | Mandatory. Document field that contains the shape. |
+| geom | Optional. Sets a bounding geometry for the heatmap. The heatmap itself will be rectangular, but hits outside of this geometry will not be counted. Defaults to the world rectangle.
+| max_cells | Optional. The maximum number of cells that can be returned in the heatmap. Defaults to 100,000 
+| dist_err | Optional*. The maximum allowable error for determining where an indexed shape is relative to the heatmap cells. Measured in meters.
+| dist_err_pct | Optional*. Sets the maximum allowable error for determining where an indexed shape is relative to the heatmap cells, specified as a fraction of the shape size. Values should be 0.0 > distErrPct =< 0.5
+| grid_level | Optional*. Sets the grid level (granularity) of the heatmap. Higher numbers mean higher granularity. Defaults to 7
+
+*Note: Either grid_level or dist_err_pct must be specified (but not both). If dist_err_pct is specified, dist_err may also be specified. 
